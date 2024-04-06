@@ -113,7 +113,7 @@ Windows  compwin.bat
 ```
 
 ### Binary
-the Binary image ( cv-bin.tar.gz ) is uploaded. Click on the Resouse tag on the right. 
+the Binary image ( cv-bin.tar.gz ) is uploaded. Click on Releases tag on the right. 
 
 ```
 bin - linux_x86_64 - cv

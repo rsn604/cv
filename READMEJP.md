@@ -107,7 +107,7 @@ Windows  compwin.bat
 ```
 
 ### Binary
-Binaryイメージ (**cv-bin.tar.gz**) を、アップロードしています。右のResouseタグをクリックしてください。
+Binaryイメージ (**cv-bin.tar.gz**) を、アップロードしています。右のReleasesタグをクリックしてください。
 
 ```
 bin - linux_x86_64 - cv
