@@ -85,7 +85,7 @@ Sort   ->  Ascending  Desending
 ## 日本語処理
 LinuxではUTF-8、WindowsではShift-JISの漢字コードをサポートしています。
 
-![KANJI](/IT/CV_07Kanji.png)
+![KANJI](/images/CV_07Kanji.png)
 
 ---
 ## ソースコードとコンパイル

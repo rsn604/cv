@@ -91,7 +91,7 @@ Sort   ->  Ascending  Desending
 ## Japanese processing
 Supports Kanji codes, UTF-8 on Linux and Shift-JIS on Windows. 
 
-![KANJI](/IT/CV_07Kanji.png)
+![KANJI](/images/CV_07Kanji.png)
 
 ---
 ## Source code and compilation 
