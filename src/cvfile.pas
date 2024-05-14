@@ -4,7 +4,7 @@ Unit cvfile ;
 
 Interface
 
-Uses cvdef, cvcrt, cvinpt, cvscrn, cveval ;
+Uses cvdef, cvcrt, cvinpt, cvscrn, cveval, cvundo ;
 Procedure PutMsg(sStr : String);
 Procedure GetFileName(Var sFileName: String; Var cAscii:Char);
 Function CheckYNC(sStr : String):  byte;
@@ -329,7 +329,11 @@ Begin
       exit ;
 
    If LoadTableMain(gsFileName, bClear) Then
-      Screen_Initialize;
+      Begin
+         Screen_Initialize;
+         ClearStack ;         { CVUNDO }
+      End ;
+
 End;
 
 { ---------------------------------------------- }
@@ -374,6 +378,7 @@ Begin
    If hMenu = 3 Then
       Begin
          ClearAllCells ;
+         ClearStack ;         { CVUNDO }
          Screen_Initialize;
       End;
    CursorOff ;

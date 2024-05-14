@@ -20,7 +20,7 @@ Var
    cAscii, cCode  :  Char;
 
 Const 
-   h_HELPLINES =  17 ;
+   h_HELPLINES =  18 ;
    HelpListLines:  Array[1..h_HELPLINES] Of String[255] 
                    =  (
                        '1) Move ',
@@ -46,6 +46,7 @@ Const
                        ,
                        '  Copy, Move   "Range" -> [CTRL+KC] Copy  [CTRL+KV] Move',
                        '  Attribute    "Range" -> ["/"->"Cell"]',
+                       '  Undo         [CTRL+X]->[CTRL+U] or "u"',
                        ''
                       ) ;
 

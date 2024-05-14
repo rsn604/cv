@@ -48,16 +48,17 @@ Const
                                PGDNKEY,PGUPKEY,HOMEKEY, DELKEY,
                                CTRL_R, CTRL_C,              { Paging }
                                CTRL_RIGHTKEY, CTRL_LEFTKEY, { Paging }
-                               CTRL_A,                   { AdjustAllWidth}
-                               CTRL_B, CTRL_K,              { Mark Cells}
-                               CTRL_N, CTRL_Y,             { Ins/Del Row }
-                               ALT_NKEY, ALT_YKEY,         { Ins/Del Col }
-                               ALT_LKEY, ALT_SKEY,          { Col Width  }
+                               CTRL_A,                { AdjustAllWidth}
+                               CTRL_B, CTRL_K,        { Mark Cells}
+                               CTRL_X,                { Undo }
+                               CTRL_N, CTRL_Y,        { Ins/Del Row }
+                               ALT_NKEY, ALT_YKEY,    { Ins/Del Col }
+                               ALT_LKEY, ALT_SKEY,    { Col Width  }
                                CTRL_Q,
-                               CTRL_F,                     { Change Form }
-                               F1KEY,                      { Help        }
-                               F3KEY, F4KEY,               { Col Width   }
-                               F5KEY];                      { Call Menu  }
+                               CTRL_F,                { Change Form }
+                               F1KEY,                 { Help        }
+                               F3KEY, F4KEY,          { Col Width   }
+                               F5KEY];                { Call Menu  }
 
 
   { ---------------------------------------------- }

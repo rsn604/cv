@@ -638,20 +638,28 @@ Begin { DefinedFunctions }
                   Case sf Of 
                      fabs :  u := abs(u);
                      fsqrt :
+                              u := sqrt(u) ;
+
+{
                               Begin
                                  If u > 0 Then
                                     u := sqrt(u)
                                  Else
                                     u := -1;
                               End ;
+                            }
                      fsqr :
+
+                             u := sqr(u) ;
+
+{
                              Begin
                                 If Abs(u) < Sqrt(exp(38) * ln(1)) Then
                                    u := sqr(u)
                                 Else
                                    u := -1;
                              End;
-
+                          }
                      fsin :  u := sin(u);
                      fcos :  u := cos(u);
                      farctan :  u := arctan(u);

@@ -4,7 +4,7 @@ Unit cvtrans ;
 
 Interface
 
-Uses cvdef, cvcrt, cvcell, cvscrn, cvdata, cveval, cvfile ;
+Uses cvdef, cvcrt, cvcell, cvscrn, cvdata, cveval, cvfile, cvundo ;
 Procedure TransMenu ;
 
 { ---------------------------------------------- }
@@ -291,6 +291,7 @@ Begin
    If (sFileName = '') Or (cAscii = ESCKEY) Then
       exit ;
    GetCSVMain(sFileName, bClear);
+   ClearStack ;         { CVUNDO }
    Screen_Initialize;
 End;
 

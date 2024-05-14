@@ -2,7 +2,7 @@
 
 Program cv ;
 
-Uses cvdef, cvcrt, cvscrn, cvinpt, cvdata, cvfile, cvtrans, cvcell, cvnewcl, cvsort, cvhelp;
+Uses cvdef, cvcrt, cvscrn, cvinpt, cvdata, cvfile, cvtrans, cvcell, cvnewcl, cvsort, cvundo, cvhelp;
 
 { ---------------------------------------------- }
 {  Get Menu                                      }
@@ -109,7 +109,9 @@ Begin
    gcForm := c_NORMAL ;
    gsFileName := '' ;
 
-   //   Screen_Initialize;          { CVSCRN }
+   ClearStack ;         { CVUNDO }
+
+   //   Screen_Initialize; 
 End;
 
 (***********************************)
@@ -211,6 +213,21 @@ Begin
                            End ;
                      End ;
 
+   (***********************************)
+   (* Undo                    CVUNDO  *)
+   (***********************************)
+         CTRL_X   :
+                     Begin
+                        GetKey(cAscii, cCode) ;
+                        If cAscii = #0 Then
+                           cAscii := cCode ;
+
+                        If (cAscii = CTRL_U) Or (cAscii = #117) Then
+                           Begin
+                              Undo ;
+                              SetScreen;
+                           End ;
+                     End;
 
    (***********************************)
    (* Move Cell Pointer       CVSCRN  *)
@@ -306,6 +323,8 @@ Begin
       End;
    Until cAscii = STOPKEY;
    ClearAllCells ;    { CVFILE }
+   ClearStack ;         { CVUNDO }
+
    CursorOn ;
    ClrScr ;
 End.

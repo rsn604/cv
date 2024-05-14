@@ -4,7 +4,7 @@ Unit cvdata ;
 
 Interface
 
-Uses cvdef, cvcrt, cvscrn, cveval ;
+Uses cvdef, cvcrt, cvscrn, cveval, cvundo ;
 Procedure CheckData(sData:String;Var tpPtr:tpCell);
 Procedure SetMaxX(hX:Integer) ;
 Procedure SetMaxY(hY:Integer) ;
@@ -47,6 +47,7 @@ Begin
  { ************************************** }
    If sData <> '' Then
       Begin
+         //				 UndoLog(0,ghX,ghY) ;   { CVUNDO }
 
        { ************************************** }
        {  New Data                            * }
@@ -62,7 +63,7 @@ Begin
      { ************************************** }
          If sData <> tpPtr.tpMain^ Then
             Begin
-
+               UndoLog(0,ghX,ghY) ;   { CVUNDO }
                tpPtr.tpMain^ := sData;
                ChangeFirstChar(sData) ;
 
@@ -114,6 +115,7 @@ Begin
       Begin
          If tpPtr.tpMain<>Nil Then
             Begin
+               UndoLog(0,ghX,ghY) ;   { CVUNDO }
                FreeCellArea(tpPtr);
                Sheet[ghX, ghY].tpMain := Nil ;
             End ;

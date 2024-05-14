@@ -93,8 +93,9 @@ Const
    CTRL_Q    =  #17 ;
    CTRL_R    =  #18 ;
    //CTRL_T    = #20 ;
-   //CTRL_U    = #21 ;
+   CTRL_U    =  #21 ;
    CTRL_V    =  #22 ;
+   CTRL_X    =  #24 ;
    CTRL_Y    =  #25 ;
 {$IFDEF WIN}
    CTRL_RIGHTKEY =  #115 ;
@@ -235,6 +236,17 @@ h_MAX_ENTRY = 100 ;
    h_ERR_NOT_COMPLETED =  99 ;
 
 {* =========================================================== *}
+{*     for Undo                                                *}
+{* =========================================================== *}
+
+   //h_MAXSTACK =  100 ;
+   h_DELROW =  -1 ;
+   h_DELCOL =  -2 ;
+   h_INSROW =  -3 ;
+   h_INSCOL =  -4 ;
+   //h_UNDO_MODE = -99 ;
+
+{* =========================================================== *}
 {*     Type definitions                                        *}
 {* =========================================================== *}
 
@@ -255,6 +267,7 @@ Type
       cCellColor :  byte ;
       tpMain :  tpData ;
    End;
+
 
 { =============================================== }
 {    Variable Data                                }
@@ -291,7 +304,6 @@ Var
 
    gsFileName:  String ;
 
-   //gcCurrentVideo: Byte ;
 Function GetCellDecPoint(hx, hy : Integer):  Byte ;
 Procedure SetCellDecPoint(hx, hy : Integer; decPoint: Byte) ;
 

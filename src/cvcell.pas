@@ -4,7 +4,7 @@ Unit cvcell ;
 
 Interface
 
-Uses cvdef, cvcrt, cvscrn, cvinpt, cveval, cvdata, cvconv ;
+Uses cvdef, cvcrt, cvscrn, cvinpt, cveval, cvdata, cvconv, cvundo ;
 
 Function GetNumericWidth(x,y : Integer; fData:Real):  Integer;
 Function AdjustWidth(x:Integer):  Integer ;
@@ -189,7 +189,7 @@ End;
 Procedure ChangeDecPoint(hTopCol, hTopRow, hEndCol, hEndRow:integer);
 
 Var 
-   hWidth, hResult,i, j:  Integer ;
+   hWidth, hResult,i, j, hSeq:  Integer ;
    sWidth:  String ;
    cEdit :  Byte ;
    cAscii :  Char;
@@ -214,18 +214,22 @@ Begin
    If hResult <> 0 Then
       exit ;
 
+   hSeq := 0 ;
    If (hWidth>=0) And (hWidth<=h_MAXDECPOINT) Then
       Begin
          For j:=hTopRow To hEndRow Do
             Begin
                For i:=hTopCol To hEndCol Do
                   Begin
+                     UndoLog(hSeq,i, j) ;   { CVUNDO }
+                     hSeq := hSeq + 1 ;
                      SetCellDecPoint(i, j, hWidth);
-                     SetScreen ;        { CVSCRN }
+                     //                     SetScreen ;        { CVSCRN }
                   End ;
             End ;
       End ;
    SetMaxX(hEndCol) ;                     { CVDATA }
+   SetScreen ;        { CVSCRN }
 End;
 
 { ---------------------------------------------- }
@@ -234,15 +238,18 @@ End;
 Procedure EraseCellData(hTopCol, hTopRow, hEndCol, hEndRow: Integer);
 
 Var 
-   i, j:  Integer;
+   i, j, hSeq:  Integer;
 
 Begin
-
+   hSeq := 0 ;
    For i:=hTopCol To hEndCol Do
       For j:=hTopRow To hEndRow Do
          If Sheet[i,j].tpMain<>Nil Then
-            FreeCellArea(Sheet[i,j]) ;      { CVEVAL }
-
+            Begin
+               UndoLog(hSeq,i, j) ;   { CVUNDO }
+               hSeq := hSeq + 1 ;
+               FreeCellArea(Sheet[i,j]) ;      { CVEVAL }
+            End;
   { ******************************** }
   {   Check Max Cell Data            }
   { ******************************** }
@@ -266,12 +273,13 @@ Procedure TransCellData(hTopCol, hTopRow, hEndCol, hEndRow, hDestCol, hDestRow: 
 Var 
    hOrgx,hOrgy:  Integer;
    hDestx,hDesty:  Integer;
-   i, j:  Integer ;
+   i, j, hSeq:  Integer ;
 Begin
 
    If (hTopCol = hDestCol) And (hTopRow = hDestRow) Then
       exit ;
 
+   hSeq := 0 ;
    For i:=hTopCol To hEndCol Do
       Begin
          If hTopCol>hDestCol Then
@@ -300,6 +308,9 @@ Begin
               { ******************************** }
                If cFlag = c_COPYCELL Then
                   Begin
+                     UndoLog(hSeq,hDestx,hDesty) ;   { CVUNDO }
+                     hSeq := hSeq + 1 ;
+
                      Sheet[hDestx,hDesty].cCellType := Sheet[hOrgx,hOrgy].cCellType ;
                      Sheet[hDestx,hDesty].cCellColor := Sheet[hOrgx,hOrgy].cCellColor ;
                      If Sheet[hOrgx,hOrgy].tpMain<>Nil Then
@@ -316,6 +327,10 @@ Begin
               { ******************************** }
                Else
                   Begin
+                     UndoLog(hSeq,hOrgx,hOrgy) ;   { CVUNDO }
+                     hSeq := hSeq + 1 ;
+                     UndoLog(hSeq,hDestx,hDesty) ;   { CVUNDO }
+                     hSeq := hSeq + 1 ;
                      Sheet[hDestx,hDesty] := Sheet[hOrgx,hOrgy];
                      Sheet[hOrgx,hOrgy].tpMain := Nil;
                      SetCellNotFormula(Sheet[hOrgx,hOrgy]) ;
@@ -377,12 +392,16 @@ End;
 Procedure ChangeCellJustify(hTopCol, hTopRow, hEndCol, hEndRow:integer; cFlag:Byte) ;
 
 Var 
-   i, j:  Integer;
+   i, j, hSeq:  Integer;
 Begin
+   hSeq := 0 ;
    For j:=hTopRow To hEndRow Do
       Begin
          For i:=hTopCol To hEndCol Do
             Begin
+               UndoLog(hSeq,i, j) ;   { CVUNDO }
+               hSeq := hSeq + 1 ;
+
                If Sheet[i,j].tpMain <> Nil Then
                   Begin
                      ChangeFirstChar(Sheet[i,j].tpMain^) ;
@@ -417,7 +436,7 @@ Const
                                        LightMagenta, Yellow, White) ;
 
 Var 
-   i, j      :  Integer;
+   i, j, hSeq      :  Integer;
    hColor, hResult :  Integer ;
    sColor     :  String ;
    cEdit     :  Byte ;
@@ -460,26 +479,17 @@ Begin
    If hResult <> 0 Then
       hColor := -1 ;
 
+   hSeq := 0 ;
    For j:=hTopRow To hEndRow Do
       Begin
          For i:=hTopCol To hEndCol Do
             Begin
+               UndoLog(hSeq,i, j) ;   { CVUNDO }
+               hSeq := hSeq + 1 ;
                If (hColor >= 0) And (hColor <= 15) Then
                   Sheet[i,j].cCellColor := hColor
-
-{
-							 Else If upcase(sColor) = 'H' Then
-                       Sheet[i,j].cCellColor := (Sheet[i,j].cCellColor Or $08)
-               Else If upcase(sColor) = 'L' Then
-                       Sheet[i,j].cCellColor := (Sheet[i,j].cCellColor And $77)
-}
                Else If UpcaseString(sColor) = 'R' Then
-                       Begin
-                          //Sheet[i,j].cCellColor := (Sheet[i,j].cCellColor*Reverse And Not Blink) ;
-
-               //Sheet[i,j].cCellColor := ((Sheet[i,j].cCellColor shl 4) And ($f0 and Not Blink))  ;
-                          Sheet[i,j].cCellColor := (Sheet[i,j].cCellColor shl 4) And $70  ;
-                       End ;
+                       Sheet[i,j].cCellColor := (Sheet[i,j].cCellColor shl 4) And $70  ;
             End ;
       End ;
 

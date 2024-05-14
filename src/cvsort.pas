@@ -4,13 +4,12 @@ Unit cvsort ;
 
 Interface
 
-Uses cvdef, cvcrt, cvscrn, cvinpt, cveval, cvconv ;
+Uses cvdef, cvcrt, cvscrn, cvinpt, cveval, cvconv, cvundo ;
 Procedure SortCellData;
 
 { ---------------------------------------------- }
 
 Implementation
-
 { ---------------------------------------------- }
 {  Sort Cell Data                                }
 { ---------------------------------------------- }
@@ -357,6 +356,7 @@ Begin
    QS(hStartY, hEndY, hCell);
    //      End ;
 
+   ClearStack ;         { CVUNDO }
    SetScreen ;
    CursorOff ;
 End;

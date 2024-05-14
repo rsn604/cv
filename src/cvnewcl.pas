@@ -4,7 +4,7 @@ Unit cvnewcl ;
 
 Interface
 
-Uses cvdef, cvscrn, cveval, cvconv, cvcrt ;
+Uses cvdef, cvscrn, cveval, cvconv, cvcrt, cvundo ;
 Procedure InsertNewRow(hRow:integer);
 Procedure DeleteCurrentRow(hRow:integer);
 Procedure InsertNewCol(hCol:integer);
@@ -68,6 +68,7 @@ Begin
          ghMaxY := ghMaxY+1 ;
 
       End;
+   UndoLog(h_INSROW, -1, hRow) ;   { CVUNDO }
 
    SetScreen ;
 End ;
@@ -78,9 +79,10 @@ End ;
 Procedure DeleteCurrentRow(hRow:integer);
 
 Var 
-   i, j:  Integer ;
+   i, j, hSeq:  Integer ;
 
 Begin
+   hSeq := 0 ;
 
    For j:=hRow To ghMaxY Do
       For i:=1 To ghMaxX Do
@@ -90,8 +92,11 @@ Begin
            {  Delete Current Row                  * }
            { ************************************** }
             If (Sheet[i,j].tpMain<>Nil) And (hRow = j) Then
-               FreeCellArea(Sheet[i,j]);
-
+               Begin
+                  UndoLog(hSeq,i, j) ;   { CVUNDO }
+                  hSeq := hSeq + 1 ;
+                  FreeCellArea(Sheet[i,j]);
+               End;
            { ************************************** }
            {  Slide Up Row                        * }
            { ************************************** }
@@ -127,6 +132,7 @@ Begin
          If ghMaxY > 1 Then
             ghMaxY := ghMaxY - 1 ;
       End ;
+   UndoLog(h_DELROW, -1, hRow) ;   { CVUNDO }
 
    SetScreen ;
 End ;
@@ -140,6 +146,7 @@ Var
    i, j:  Integer ;
 
 Begin
+
    If ghMaxX < h_MAXCOL Then
       Begin
 
@@ -188,6 +195,7 @@ Begin
 
          ghMaxX := ghMaxX+1 ;
       End;
+   UndoLog(h_INSCOL, hCol, -1) ;   { CVUNDO }
    SetScreen ;
 End ;
 
@@ -197,9 +205,10 @@ End ;
 Procedure DeleteCurrentCol(hCol:integer);
 
 Var 
-   i, j:  Integer ;
+   i, j, hSeq:  Integer ;
 
 Begin
+   hSeq := 0 ;
 
   { ************************************** }
   {  Slide Col to right                  * }
@@ -209,7 +218,11 @@ Begin
          For j:=1 To ghMaxY Do
             Begin
                If (Sheet[i,j].tpMain<>Nil) And ( hCol = i) Then
-                  FreeCellArea(Sheet[i,j]);
+                  Begin
+                     UndoLog(hSeq,i, j) ;   { CVUNDO }
+                     hSeq := hSeq + 1 ;
+                     FreeCellArea(Sheet[i,j]);
+                  End ;
                Sheet[i,j] := Sheet[i+1,j] ;
                If IsCellFormula(Sheet[i,j]) Then
                   Convert(Sheet[i,j].tpMain^,i+1,j,i,j,c_CHANGE_X) ;
@@ -241,6 +254,8 @@ Begin
 
    If ghMaxX > 1 Then
       ghMaxX := ghMaxX-1 ;
+
+   UndoLog(h_DELCOL, hCol, -1) ;   { CVUNDO }
    SetScreen ;
 End ;
 
