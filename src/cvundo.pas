@@ -70,12 +70,13 @@ Var
    temp:  tpStack ;
    temp2:  tpStack ;
 Begin
-   temp := Nil ;
-   While (gtpTop <> Nil) Do
+   temp := gtpTop;
+   If temp = Nil Then
+      exit;
+   While (temp^.tpNext <> Nil) Do
       Begin
          temp2 := temp;
-         temp := gtpTop;
-         gtpTop := gtpTop^.tpNext;
+         temp := temp^.tpNext;
       End ;
    If temp <> Nil Then
       Begin
