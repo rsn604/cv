@@ -122,13 +122,13 @@ Var
    sData     :  String ;
    cEdit     :  Byte ;
    cAscii, cCode :  Char;
-   sFileName   :  String ;
+   //sFileName   :  String ;
 Begin
    Initialize;
    If Paramcount >= 1 Then
       Begin
-         sFileName := ParamStr(1) ;
-         If (LoadTableMain(sFileName, False) = False) Then
+         gsFileName := ParamStr(1) ;
+         If (LoadTableMain(gsFileName, False) = False) Then
             Begin
                ClrScr ;
                exit ;
@@ -191,21 +191,21 @@ Begin
                         If cAscii = #0 Then
                            cAscii := cCode ;
 
-                        If cAscii = CTRL_K Then      { End Block }
+                        If (cAscii = CTRL_K) Or (cAscii = #107) Then      { End Block }
                            Begin
                               gcMode := c_MARK_END ;
                               ghEndCol := ghX ;
                               ghEndRow := ghY ;
                            End ;
 
-                        If cAscii = CTRL_V Then      { Move Block  CVCELL }
+                        If (cAscii = CTRL_V) Or (cAscii = #118) Then      { Move Block  CVCELL }
                            Begin
                               MoveCellData(ghTopCol, ghTopRow,
                                            ghEndCol, ghEndRow,
                                            ghX, ghY);
                            End ;
 
-                        If cAscii = CTRL_C Then      { Copy Block  CVCELL }
+                        If (cAscii = CTRL_C) Or (cAscii = #99) Then      { Copy Block  CVCELL }
                            Begin
                               CopyCellData(ghTopCol, ghTopRow,
                                            ghEndCol, ghEndRow,
