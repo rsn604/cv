@@ -122,7 +122,7 @@ Var
    sData     :  String ;
    cEdit     :  Byte ;
    cAscii, cCode :  Char;
-   //sFileName   :  String ;
+   //sFileName		 :  String ;
 Begin
    Initialize;
    If Paramcount >= 1 Then
@@ -237,11 +237,11 @@ Begin
          RIGHTKEY:  CursorRight;
          LEFTKEY:  CursorLeft;
 
-         CTRL_C:  PageDown;
-         CTRL_R:  PageUP;
+         CTRL_C, CTRL_V   :  PageDown;
+         CTRL_R, ALT_VKEY :  PageUP;
 
-         CTRL_RIGHTKEY:  PageLeft;
-         CTRL_LEFTKEY:  PageRight;
+         CTRL_RIGHTKEY :  PageLeft;
+         CTRL_LEFTKEY  :  PageRight;
 
          HOMEKEY:  Screen_Initialize;
 
@@ -283,17 +283,19 @@ Begin
          ALT_SKEY, F3KEY  :
                              ChangeWidthByValue(gcCellWidth[ghX]-1) ;
 
-         CTRL_A :
-                   Begin
-                      AdjustWidth(ghX) ;
-                      SetScreen;
-                      GetKey(cAscii, cCode) ;
-                      If cAscii = #0 Then
-                         cAscii := cCode ;
+         //CTRL_A :
+         CTRL_J:
+                  Begin
+                     AdjustWidth(ghX) ;
+                     SetScreen;
+                     GetKey(cAscii, cCode) ;
+                     If cAscii = #0 Then
+                        cAscii := cCode ;
 
-                      If cAscii = CTRL_A Then
-                         AdjustAllWidth ;
-                   End ;
+                     //If cAscii = CTRL_A Then
+                     If cAscii = CTRL_J Then
+                        AdjustAllWidth ;
+                  End ;
 
    (***********************************)
    (* GotoCell                 CVNEWCL*)
@@ -309,6 +311,9 @@ Begin
                         If cAscii = CTRL_R Then
                            GotoCell(ghX, 1) ;
                      End ;
+
+         CTRL_A   :  GotoCell(1, ghY) ;
+         CTRL_E   :  GotoCell(ghMaxX, ghY) ;
 
    (***********************************)
    (* Change Form Mode         CVNEWCL*)

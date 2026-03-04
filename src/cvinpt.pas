@@ -45,11 +45,12 @@ Const
    cSymbol :  set Of char =  [#32..#255];
    cEXITKEY1 :  set Of char =  [STOPKEY, CRKEY, ESCKEY];
    cEXITKEY2 :  Set Of char =  [UPKEY, DOWNKEY, RIGHTKEY, LEFTKEY,
-                               PGDNKEY,PGUPKEY,HOMEKEY, DELKEY,
-                               CTRL_R, CTRL_C,              { Paging }
+                               PGDNKEY,PGUPKEY,HOMEKEY, DELKEY, CTRL_D,
+                               CTRL_R, CTRL_C, CTRL_V, ALT_VKEY, { Paging }
                                CTRL_RIGHTKEY, CTRL_LEFTKEY, { Paging }
-                               CTRL_A,                { AdjustAllWidth}
+                               CTRL_A, CTRL_E,        { Go Top/End}
                                CTRL_B, CTRL_K,        { Mark Cells}
+                               CTRL_J,                { Adjust}
                                CTRL_X,                { Undo }
                                CTRL_N, CTRL_Y,        { Ins/Del Row }
                                ALT_NKEY, ALT_YKEY,    { Ins/Del Col }
@@ -334,6 +335,35 @@ Begin
    hDataPos := Length(sInpString)+1;
 End ;
 
+  { ---------------------------------------------- }
+{  CTRL_A. CRTL_E, CTRL_K                          }
+  { ---------------------------------------------- }
+Procedure InputLine_Top;
+Begin
+   hPos := 1;
+   hDataPos := 1;
+   hStartDataPos := 1;
+End ;
+
+Procedure InputLine_End;
+
+Var 
+   hEndDataPos, hEndPos :  Integer ;
+
+Begin
+   hDataPos := length(sInpString) ;
+   //hStartDataPos := ShiftRT(sInpString, hStartDataPos, hDataPos) ;
+   GetCellDataWithEndPos(sInpString, hStartDataPos, MaxCol, hDataPos, hPos) ;
+End ;
+
+Procedure InputLine_KILL ;
+Begin
+   If (Length(sInpString)>0) Then
+      Begin
+         delete(sInpString, hDataPos, length(sInpString)-hDataPos+1) ;
+      End;
+End;
+
 { ---------------------------------------------- }
 {  Start here                                    }
 { ---------------------------------------------- }
@@ -483,10 +513,14 @@ Begin
       Else
          Begin
             Case Ch1 Of 
-               LEFTKEY, F3KEY  :  InputLine_LT ;
-               RIGHTKEY, F4KEY  :  InputLine_RT ;
+               CTRL_A :  InputLine_Top ;
+               CTRL_E :  InputLine_End ;
+               CTRL_K :  InputLine_KILL ;
+
+               LEFTKEY, F3KEY, CTRL_B  :  InputLine_LT ;
+               RIGHTKEY, F4KEY, CTRL_F:  InputLine_RT ;
                BSKEY     :  InputLine_BS ;
-               DELKEY    :  InputLine_DEL ;
+               DELKEY, CTRL_D    :  InputLine_DEL ;
 
                F2KEY, ALT_IKEY    :
                                      Begin
@@ -497,17 +531,6 @@ Begin
                                                  SetCalcModeMessage(cEdit) ;
                                            End ;
                                      End ;
-
-               CTRL_K    :
-                            Begin
-                               If (cEdit And c_CALC <> 0) Then
-                                  Begin
-                                     GetKey(cAscii, cCode) ;
-
-                                     If cAscii = CTRL_C Then
-                                        SetCellMark ;
-                                  End ;
-                            End ;
 
                TABKEY    :
                             Begin

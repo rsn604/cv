@@ -23,22 +23,22 @@ Const
    h_HELPLINES =  18 ;
    HelpListLines:  Array[1..h_HELPLINES] Of String[255] 
                    =  (
-                       '1) Move ',
+                       ' 1) Move ',
                        '  CELL         [Arrow key]  GoTop [CTRL+QC]  GoEnd [CTRL+QR]  Go"A1" [HOME]'
                        ,
 
                    '  Screen       Vertical [CTRL+C][CTRL+R]  Horizontal [CTRL+ArrowR][CTRL+ArrowL]'
                        ,
-                       '2) ROW,COL ',
+                       ' 2) ROW,COL ',
                        '  Ins/del ROW  Insert [CTRL+N]  Delete [CTRL+Y]',
                        '  Ins/del COL  Insert [ALT+N]  Delete [ALT+Y] ',
 
                    '  Width        Shrink [PF03]or[ALT+S]  Expand [PF04]or[ALT+L]  or ["/"->"Cell"]'
                        ,
-                       '               Adjust current col [CTRL+A] ->[CTRL+A] All cols',
-                       '3) Range ',
+                       '               Adjust current col [CTRL+J] ->[CTRL+J] All cols',
+                       ' 3) Range ',
                        '  Set "Range"  [CTRL+B]->[CTRL+KK]  Reset[ESC] ',
-                       '4) Edit ',
+                       ' 4) Edit ',
                        '  Go edit mode [PF02]or[ALT+I]',
                        '  Special key  Menu [/]or[PF05]  Formula [+]or[PF06]  Axis on/off [CTRL+F]',
 

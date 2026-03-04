@@ -7,7 +7,8 @@ Interface
 Uses cvdef, cvcrt, cvscrn, cvinpt, cveval, cvdata, cvconv, cvundo ;
 
 Function GetNumericWidth(x,y : Integer; fData:Real):  Integer;
-Function AdjustWidth(x:Integer):  Integer ;
+//Function AdjustWidth(x:Integer):Integer ;
+Procedure AdjustWidth(x:Integer) ;
 Procedure AdjustAllWidth ;
 Procedure ChangeWidthByValue(hWidth:Integer) ;
 Procedure ChangeWidth(hTopCol,hEndCol:integer) ;
@@ -45,7 +46,8 @@ End ;
 { ---------------------------------------------- }
 {  Adjust Width                                  }
 { ---------------------------------------------- }
-Function AdjustWidth(x:Integer):  Integer ;
+//Function AdjustWidth(x:Integer):Integer ;
+Function CalicurateWidth(x:Integer):  Integer ;
 
 Var 
    hMaxCellWidth:  Integer ;
@@ -97,20 +99,43 @@ Begin
    If hMaxWidth > 0 Then
       Begin
          If hMaxWidth < hMaxCellWidth Then
-            gcCellWidth[x] := hMaxWidth+1
+            //gcCellWidth[x] := hMaxWidth+1
+            hMaxWidth := hMaxWidth+1
          Else
-            gcCellWidth[x] := hMaxCellWidth ;
+            hMaxWidth := hMaxCellWidth ;
       End ;
-   AdjustWidth := hMaxWidth ;
+   CalicurateWidth := hMaxWidth ;
+
+End ;
+
+Procedure AdjustWidth(x:Integer) ;
+
+Var 
+   hWidth :  integer;
+Begin
+   hWidth := CalicurateWidth(x) ;
+   If hWidth > 0 Then
+      Begin
+         UndoLog(x-1, x, 1) ;
+         gcCellWidth[x] := CalicurateWidth(x)
+      End ;
 End ;
 
 Procedure AdjustAllWidth ;
 
 Var 
-   i:  Integer ;
+   i   :  Integer ;
+   hWidth :  integer;
 Begin
    For i:= 1 To ghMaxX Do
-      AdjustWidth(i) ;
+      Begin
+         hWidth := CalicurateWidth(i) ;
+         If hWidth > 0 Then
+            Begin
+               UndoLog(i-1, i, 1) ;
+               gcCellWidth[i] := hWidth ;
+            End;
+      End ;
 
    SetScreen;
 End ;
@@ -127,6 +152,8 @@ Begin
 
    If (hWidth>=1) And (hWidth<= hMaxCellWidth) Then
       Begin
+         UndoLog(0, ghX, ghY) ;   { CVUNDO }
+
          gcCellWidth[ghX] := hWidth;
          SetMaxX(ghX) ;                 { CVDATA }
 
@@ -169,8 +196,14 @@ Begin
 
    If (UpcaseString(sWidth) = 'A') Then
       Begin
-         If AdjustWidth(ghX) > 0 Then
-            SetScreen;
+         //if AdjustWidth(ghX) > 0 then
+         hWidth := CalicurateWidth(ghX) ;
+         If hWidth > 0 Then
+            Begin
+               UndoLog(0, ghx, 1) ;
+               gcCellWidth[ghx] := hWidth ;
+               SetScreen;
+            End ;
          exit ;
       End ;
 

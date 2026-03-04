@@ -6,6 +6,7 @@ Interface
 
 Uses cvdef, cvcrt, cveval ;
 Procedure ClearStack ;
+//procedure UndoLog(hMode, hSeq, hx, hy : Integer);
 Procedure UndoLog(hSeq, hx, hy : Integer);
 Procedure Undo ;
 
@@ -16,18 +17,21 @@ Implementation
 Uses cvnewcl ;
 
 Const 
-   h_MAXSTACK =  100 ;
+   //h_MAXSTACK =  100 ;
+   h_MAXSTACK =  h_MAXROW ;
    h_UNDO_MODE =  -99 ;
 
 Type 
    tpStack =  ^tpLogData ;
    tpLogData =  Record
+      //hMode 			: Integer ;
       hSeq    :  Integer ;
       hx     :  Integer ;
       hy     :  Integer ;
       cCellType :  byte ;
       cCellColor :  byte ;
       sCellData :  String ;
+      cCellWidth :  byte ;
       tpNext   :  tpStack ;
    End;
 
@@ -95,11 +99,13 @@ Var
    temp:  tpStack ;
 Begin
    new(temp) ;
+   //temp^.hMode := tpLog.hMode ;
    temp^.hSeq := tpLog.hSeq ;
    temp^.hx := tpLog.hx ;
    temp^.hy := tpLog.hy ;
    temp^.cCellType := tpLog.cCellType;
    temp^.cCellColor := tpLog.cCellColor;
+   temp^.cCellWidth := tpLog.cCellWidth;
    temp^.sCellData := tpLog.sCellData;
    temp^.tpNext := gtpTop;
    gtpTop := temp ;
@@ -117,11 +123,13 @@ Var
    temp:  tpStack ;
 Begin
 
+   //tpLog.hMode := gtpTop^.hMode;	 
    tpLog.hSeq := gtpTop^.hSeq;
    tpLog.hx := gtpTop^.hx;
    tpLog.hy := gtpTop^.hy;
    tpLog.cCellType := gtpTop^.cCellType;
    tpLog.cCellColor := gtpTop^.cCellColor;
+   tpLog.cCellWidth := gtpTop^.cCellWidth;
    tpLog.sCellData := gtpTop^.sCellData;
    temp := gtpTop;
    gtpTop := gtpTop^.tpNext ;
@@ -152,6 +160,7 @@ End ;
 { ---------------------------------------------- }
 {  Write undo log                                }
 { ---------------------------------------------- }
+//procedure UndoLog(hMode, hSeq, hx, hy : Integer);
 Procedure UndoLog(hSeq, hx, hy : Integer);
 
 Var 
@@ -161,14 +170,17 @@ Begin
    If ghUndo = h_UNDO_MODE Then
       exit ;
 
+   //tpLog.hMode := hMode ;
    tpLog.hSeq := hSeq ;
    tpLog.hx := hx ;
    tpLog.hy := hy ;
 
    If hSeq >=0 Then
+      //if hMode >= 0 then
       Begin
          tpLog.cCellType := Sheet[hx,hy].cCellType ;
          tpLog.cCellColor := Sheet[hx,hy].cCellColor ;
+         tpLog.cCellWidth := gcCellWidth[hx] ;
          If Sheet[hx,hy].tpMain = Nil Then
             tpLog.sCellData := ''
          Else
@@ -178,6 +190,7 @@ Begin
       Begin
          tpLog.cCellType := 0 ;
          tpLog.cCellColor := 0 ;
+         tpLog.cCellWidth := 0 ;
          tpLog.sCellData := ''
       End ;
 
@@ -212,7 +225,13 @@ End ;
 { ---------------------------------------------- }
 Procedure BackoutCell(tpLog : tpLogData) ;
 Begin
-   //writeln('tpLog.sCellData:', tpLog.sCellData) ;
+   // Cell width
+   If (tpLog.cCellWidth > 0) And (gcCellWidth[tpLog.hx] <> tpLog.cCellWidth) Then
+      Begin
+         gcCellWidth[tpLog.hx] := tpLog.cCellWidth ;
+         exit ;
+      End;
+
    Sheet[tpLog.hx,tpLog.hy].cCellType := tpLog.cCellType ;
    Sheet[tpLog.hx,tpLog.hy].cCellColor := tpLog.cCellColor ;
    If Sheet[tpLog.hx,tpLog.hy].tpMain <> Nil Then

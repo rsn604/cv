@@ -39,7 +39,7 @@ Const
    //ALT_ZKEY = #44;
    //ALT_XKEY = #45;
    //ALT_CKEY = #46;
-   //ALT_VKEY = #47;
+   ALT_VKEY =  #47;
    //ALT_BKEY = #48;
    ALT_NKEY =  #49;
    //ALT_MKEY = #50;
@@ -84,8 +84,11 @@ Const
    CTRL_A    =  #01;
    CTRL_B    =  #02;
    CTRL_C    =  #03;
-   //CTRL_E    = #05;
+   CTRL_D    =  #04;
+   CTRL_E    =  #05;
    CTRL_F    =  #06;
+   //CTRL_H    =  #08;
+   CTRL_J    =  #10;
    CTRL_K    =  #11;
    //CTRL_L    = #12 ;
    CTRL_N    =  #14;
@@ -238,13 +241,10 @@ h_MAX_ENTRY = 100 ;
 {* =========================================================== *}
 {*     for Undo                                                *}
 {* =========================================================== *}
-
-   //h_MAXSTACK =  100 ;
    h_DELROW =  -1 ;
    h_DELCOL =  -2 ;
    h_INSROW =  -3 ;
    h_INSCOL =  -4 ;
-   //h_UNDO_MODE = -99 ;
 
 {* =========================================================== *}
 {*     Type definitions                                        *}
@@ -291,7 +291,10 @@ Var
   { ----------------------------------------------- }
    Sheet:  array [1..h_MAXCOL,1..h_MAXROW] Of tpCell;  { Cell Data }
    gcCellWidth:  array [1..h_MAXCOL] Of Byte ;
+
+   // for cv1 support.. deprecated
    gcCellDecPoint:  array [1..h_MAXCOL] Of Byte ;
+
    gcCellPos:  array [1..h_MAXCOL] Of Byte ;
    ghColCount :  Integer ;                { Col Count on Screen  }
    gcCellAttr, gcLineAttr:  Byte ;    { Cell and line attribute }
