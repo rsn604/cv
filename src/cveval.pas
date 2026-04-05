@@ -12,6 +12,7 @@ Procedure RTrim(Var sData:String) ;
 Procedure LTrim(Var sData:String) ;
 Procedure Trim(Var sData:String) ;
 Function UpcaseString(sData:String):  String ;
+
 Function IsCellNumeric(Var tpPtr:tpCell):  Boolean ;
 Function IsCellFormula(Var tpPtr:tpCell):  Boolean ;
 Function IsCellRecalc(Var tpPtr:tpCell):  Boolean ;
@@ -21,6 +22,7 @@ Procedure SetCellRecalc(Var tpPtr:tpCell) ;
 Procedure SetCellNotFormula(Var tpPtr:tpCell) ;
 Procedure SetCellNotNumeric(Var tpPtr:tpCell) ;
 Procedure SetCellNotRecalc(Var tpPtr:tpCell) ;
+
 Procedure GetCellArea(Var tpPtr: tpCell);
 Procedure FreeCellArea(Var tpPtr: tpCell);
 Function Hex(v: LongInt; w: Integer):  String;

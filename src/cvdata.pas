@@ -70,9 +70,8 @@ Begin
                If Not IsCellFormula(tpPtr) Then
                   Begin
                      val(sData,fData,hResult);
-                     //if hResult <> 0 then
+                     //@@@@@
                      If (hResult <> 0) Or (sData[1] = 'E') Or (sData[1] = 'e') Then
-                        //SetCellNotFormula(tpPtr)
                         SetCellNotNumeric(tpPtr)
                      Else
                         Begin
@@ -92,15 +91,6 @@ Begin
                         End ;
                   End ;
 
-
-{
-              if IsCellRecalc(tpPtr) then
-                 begin
-                    WinClrScr( 1, h_GUIDELINE, MaxCol, h_GUIDELINE );
-                    GotoXY(1,h_GUIDELINE);
-                    SetScreenDetail(gcCellAttr) ;
-                 end ;
-}
             End;
 
          SetMaxX(ghX) ;
@@ -127,6 +117,7 @@ Begin
          GotoXY(1,h_GUIDELINE);
 
          SetScreenDetail ;
+         //SetScreen ;
       End ;
 End;
 End .

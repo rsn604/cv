@@ -264,8 +264,13 @@ End ;
 { ---------------------------------------------- }
 Procedure GotoCell(hX, hY:Integer) ;
 Begin
-   ghX := hX;
-   ghY := hY;
+   ghX := hX ;
+   ghY := hY ;
+   If ghX <=  ghFixX Then
+      ghx := 1 + ghFixX ;
+   If ghY <=  ghFixY Then
+      ghY := 1 + ghFixY ;
+
    If (hX<ghFirstX) Or (hX>ghFirstX+ghColCount) Then
       Begin
          ghFirstX := ghX ;

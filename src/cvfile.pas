@@ -155,17 +155,8 @@ Begin
    writeln(tpFile,hTopCol);
    writeln(tpFile,hEndCol);
 
-
-
-{
-   for i:=hTopCol to hEndCol do
-      writeln(tpFile,gcCellDecPoint[i]);
-	  //writeln(tpFile, GetCellDecPoint(i, ghY));
-}
-
    For i:=hTopCol To hEndCol Do
       writeln(tpFile,gcCellWidth[i]);
-
    For j:=hTopRow To hEndRow Do
       Begin
          For i:=hTopCol To hEndCol Do
@@ -180,6 +171,9 @@ Begin
             End;
       End;
    writeln(tpFile,gcForm);
+   //@@@@
+   writeln(tpFile,ghFixX);
+   writeln(tpFile,ghFixY);
    Close(tpFile);
 
 End ;
@@ -306,6 +300,10 @@ Begin
       End ;
 
    readln(tpFile,gcForm);
+   //@@@@
+   readln(tpFile,ghFixX);
+   readln(tpFile,ghFixY);
+
    Close(tpFile);
    LoadTableMain := True ;
 

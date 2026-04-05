@@ -100,6 +100,9 @@ Const
    CTRL_V    =  #22 ;
    CTRL_X    =  #24 ;
    CTRL_Y    =  #25 ;
+   // Go top, end
+   //CTRL_LT   =  #44 ;
+   //CTRL_GT   =  #46 ;
 {$IFDEF WIN}
    CTRL_RIGHTKEY =  #115 ;
    CTRL_LEFTKEY =  #116 ;
@@ -152,6 +155,8 @@ Const
    h_CELL_NUMERIC =  $80 ;
    h_CELL_FORMULA =  $40 ;
    h_CELL_RECALC  =  $20 ;
+   //h_CELL_FIX_X   =  $10 ;
+   //h_CELL_FIX_Y   =  $08 ;
 
    c_INPUT =  0 ;
    c_EDIT =  1 ;
@@ -188,6 +193,7 @@ h_MAX_ENTRY = 100 ;
    s_CELL_RIGHT =  '\"' ;
    s_CELL_CENTER =  '\^' ;
    s_CELL_FILLCHAR =  '\' ;
+   s_CELL_HEX =  '0x' ;
 
 {* =========================================================== *}
 {*     for UTF-8, Color                                        *}
@@ -285,6 +291,8 @@ Var
    ghMaxX, ghMaxY :  Integer ;             { Max Cell No. on Screen}
    ghLeftSide:  Integer;                  { X-Axis start line }
    ghColNameLine:  Integer;               { Y-Axis start Line }
+   //@@@
+   ghFixX, ghFixY :  Integer ;             { Fixed Cell    }
 
   { ----------------------------------------------- }
   {  Cell Data                                      }

@@ -10,30 +10,22 @@ Procedure WriteRange;
 Procedure Centerlize(Var sWork: String; hLen: Integer);
 Procedure RightJustify(Var sWork: String; hLen: Integer);
 Procedure LeftJustify(Var sWork: String; hLen: Integer);
-Function SetData(Var tpPtr:tpCell):  String ;
 Procedure ClearMenuLine;
 Procedure WriteData(Var tpPtr:tpCell; X,Y,Width:Integer; cAttr: Byte);
 Procedure SetCurrentDataOnCell(Var tpPtr: tpCell; cAttr: Byte);
 Procedure SetCurrentDataOnRow;
 Procedure SetCurrentDataOnLine(Var tpPtr: tpCell);
-Procedure GetColCount;
-Function GetPreviousFirstX(hFirstX:Integer):  Integer;
-//procedure SetXAxis ;
-//procedure SetYAxis ;
-Procedure SetScreenDetail;
-Procedure SetScreen;
-Procedure ScrollUP;
-Procedure ScrollDown;
-Procedure ScrollRight;
-Procedure ScrollLeft;
-Procedure CursorUP;
-Procedure CursorDown;
-Procedure CursorRight;
-Procedure CursorLeft;
 Procedure PageDown;
 Procedure PageUp;
 Procedure PageRight;
 Procedure PageLeft;
+Procedure CursorUP;
+Procedure CursorDown;
+Procedure CursorRight;
+Procedure CursorLeft;
+Procedure GetColCount(firstX :Integer) ;
+Procedure SetScreenDetail;
+Procedure SetScreen;
 Procedure Screen_Initialize;
 
 { ---------------------------------------------- }
@@ -55,7 +47,8 @@ Begin
    Xpos := X1 ;
    For i := 1 To Count Do
       Begin
-         WriteVramStr(Xpos, Y1, ListMenu[i].Menu, LightGray);
+         //WriteVramStr(Xpos, Y1, ListMenu[i].Menu, LightGray);
+         WriteVramStr(Xpos, Y1, ListMenu[i].Menu, Yellow);
          Xpos := Xpos + CellLength(ListMenu[i].Menu);
       End;
 
@@ -73,7 +66,7 @@ Begin
          Case Aschii Of 
             LEFTKEY :
                        Begin
-                          WriteVramStr(Xpos, Y1, ListMenu[i].Menu, LightGray);
+                          WriteVramStr(Xpos, Y1, ListMenu[i].Menu, Yellow);
                           i := i-1;
                           If i < 1 Then i := Count;
                           Xpos := CellLength(ListMenu[i].Menu)*(i-1)+X1 ;
@@ -83,7 +76,7 @@ Begin
 
             RIGHTKEY :
                         Begin
-                           WriteVramStr(Xpos, Y1, ListMenu[i].Menu, LightGray);
+                           WriteVramStr(Xpos, Y1, ListMenu[i].Menu, Yellow);
                            i := i+1;
                            If i > Count Then i := 1;
                            Xpos := CellLength(ListMenu[i].Menu)*(i-1)+X1;
@@ -93,7 +86,7 @@ Begin
 
             CRKEY :
                      Begin
-                        WriteVramStr(Xpos, Y1, ListMenu[i].Menu, LightGray);
+                        WriteVramStr(Xpos, Y1, ListMenu[i].Menu, Yellow);
                         SelectVertMenu := ListMenu[i].Num;
                         exit;
                      End;
@@ -109,7 +102,7 @@ Begin
                      //if Upcase(Chr(Aschii)) = Copy(ListMenu[i].Menu,1,1) then
                      If Upcase(Aschii) = Copy(ListMenu[i].Menu,1,1) Then
                         Begin
-                           WriteVramStr(Xpos, Y1, ListMenu[i].Menu, LightGray);
+                           WriteVramStr(Xpos, Y1, ListMenu[i].Menu, Yellow);
                            SelectVertMenu := ListMenu[i].Num ;
                            exit ;
                         End ;
@@ -207,6 +200,10 @@ Begin
       End ;
 End ;
 
+(**********************)
+(* Start of SetData2  *)
+(**********************)
+
 { ---------------------------------------------- }
 {  Set Data                                      }
 { ---------------------------------------------- }
@@ -251,6 +248,14 @@ Begin
   { ------------------------------------------------ }
    Else If (Copy(tpPtr.tpMain^,1,Length(s_CELL_RIGHT)) = s_CELL_RIGHT) And (Copy(tpPtr.tpMain^,
            Length(s_CELL_RIGHT)+1,Length(s_CELL_RIGHT)) <> s_CELL_RIGHT) Then
+           Begin
+              RightJustify(sWork, hLen) ;
+           End
+
+  { ------------------------------------------------ }
+  {  Hex (0x)                                        }
+  { ------------------------------------------------ }
+   Else If (Copy(sWork,1,Length(s_CELL_HEX)) = s_CELL_HEX) Then
            Begin
               RightJustify(sWork, hLen) ;
            End
@@ -353,7 +358,6 @@ Begin
 //	 writeln('CellNumeric ',hStatus,' ', sData,' fData:',round(fData),' hErrPos:',hErrPos,' sRet:',sRet) ;
 
                            // @@@@@
-                           //                           SetCellNotFormula(tpPtr) ;
                            SetCellNotNumeric(tpPtr) ;
                         End ;
                   End
@@ -409,6 +413,8 @@ Begin
 
 End ;
 
+{ ============================================== }
+
 { ---------------------------------------------- }
 {  Clear Menu                                    }
 { ---------------------------------------------- }
@@ -445,10 +451,6 @@ End ;
 {  Set Current Data on Cell                      }
 { ---------------------------------------------- }
 Procedure SetCurrentDataOnCell(Var tpPtr: tpCell; cAttr: Byte);
-{
-var
-   i :  Integer ;
-}
 Begin
    WriteData(tpPtr,
              gcCellPos[ghScrX],
@@ -495,18 +497,18 @@ Procedure SetCurrentDataOnLine(Var tpPtr: tpCell);
 
 Var 
    sCellType :  String ;
-   //sCellColor : String ;
+
 Begin
    SetAttr(gcLineAttr) ;
    WinClrScr( 1, h_GUIDELINE, MaxCol, h_GUIDELINE );
    GotoXY(1,h_GUIDELINE);
    sCellType := HEX(tpPtr.cCellType,2) ; { CVEVAL }
-   //sCellColor := HEX(tpPtr.cCellColor,2) ; { CVEVAL }
 
    delete(sCellType,1,2) ;
    If sCellType = '' Then
       sCellType := '00' ;
 
+   //Write(GetXString(ghX), ghX, ' ', ghFirstX, ' ',  '[',gcCellWidth[ghX],' 0x',sCellType ,']=>');
    Write(GetXString(ghX), ghY, '[',gcCellWidth[ghX],' 0x',sCellType ,']=>');
    If (tpPtr.tpMain <>Nil) Then
       WriteString(GetCellData(tpPtr.tpMain^, 1, MaxCol-34), gcLineAttr) ;
@@ -514,35 +516,7 @@ Begin
    WriteRange;
 End;
 
-{ ---------------------------------------------- }
-{  Calcurate Column Count                        }
-{ ---------------------------------------------- }
-Procedure GetColCount;
-
-Var 
-   i, hLen:  Integer ;
-Begin
-   ghColCount := 0 ;
-   hLen := gcCellPos[1] ;
-
-   i := 1 ;
-
-   While (hLen < MaxCol) And (i<= h_MAXCOL-ghFirstX+1) Do
-      Begin
-         hLen := hLen + gcCellWidth[i+ghFirstX-1] ;
-         If hLen >= MaxCol Then
-            exit ;
-         ghColCount := ghColCount + 1 ;
-         If ghColCount > h_MAXCOL - ghFirstX+1 Then
-            Begin
-               ghColCount := h_MAXCOL - ghFirstX+1 ;
-               exit ;
-            End ;
-         gcCellPos[i+1] := gcCellPos[i] + gcCellWidth[i+ghFirstX-1] ;
-         i := i + 1 ;
-      End;
-
-End ;
+{ ============================================== }
 
 { ---------------------------------------------- }
 {  Calcurate Previous Firstx                     }
@@ -563,142 +537,73 @@ Begin
       End;
 
    If i < 1 Then
-      i := 1 ;
-   GetPreviousFirstX := i ;
+      i := 1  ;
+   GetPreviousFirstX := i + ghFixX ;
 
 End ;
-{ ---------------------------------------------- }
-{  Set X-Axis                                    }
-{ ---------------------------------------------- }
-Procedure SetXAxis ;
 
-Var 
-   i, j     :  Integer ;
-   w     :  integer ;
-   currentAttr :  Byte ;
-   xstr     :  String ;
+{ ---------------------------------------------- }
+{  Page Down                                     }
+{ ---------------------------------------------- }
+Procedure PageDown;
 Begin
-   currentAttr := GetAttr ;
-   GotoXY(1,ghColNameLine);
-   WinClrScr( 1, ghColNameLine, MaxCol, ghColNameLine );
-   TextColor(Black) ;
-   TextBackground(Cyan) ;
+   ghY := ghFirstY + MaxRow-ghColNameLine ;
+   If ghY > h_MAXROW Then
+      ghY := h_MAXROW ;
 
-   For i:=1 To ghColCount Do
-      Begin
-         w := gcCellWidth[ghFirstX+i-1] ;
-         xstr := GetXString(ghFirstX+i-1) ;   {CVEVAL}
-
-         For j:=1 To w Do
-            Begin
-               GotoXY(gcCellPos[i]+j-1,ghColNameLine) ;
-               If j = ((gcCellWidth[ghFirstX+i-1]-length(xstr)) Div 2)+((gcCellWidth[ghFirstX+i-1]-
-                  length(xstr)) Mod 2) Then
-                  Begin
-                     write(xstr) ;
-                     j := j+length(xstr)-1 ;
-                  End
-               Else
-                  write(' ') ;
-            End ;
-      End;
-   SetAttr(currentAttr) ;
-End ;
-
-{ ---------------------------------------------- }
-{  Set Y-Axis                                    }
-{ ---------------------------------------------- }
-Procedure SetYAxis ;
-
-Var 
-   i :  Integer ;
-   currentAttr :  Byte ;
-Begin
-   currentAttr := GetAttr ;
-   WinClrScr( 1, ghColNameLine+1, ghLeftSide, MaxRow );
-   gotoxy(1,ghColNameLine) ;
-   TextColor(AXIS_TEXTCOLOR) ;
-   TextBackground(AXIS_TEXTBACKGROUND) ;
-
-   For i:=1 To ghLeftSide-1 Do
-      Begin
-         gotoxy(i, ghColNameLine) ;
-         write(' ') ;
-      End ;
-
-   For i:=1 To MaxRow-ghColNameLine  Do
-      Begin
-         gotoxy(1,i+ghColNameLine) ;
-         write(ghFirstY+i-1:ghLeftSide-1) ;
-      End ;
-   SetAttr(currentAttr) ;
-End ;
-
-{ ---------------------------------------------- }
-{  Set Screen                                    }
-{ ---------------------------------------------- }
-Procedure SetScreenDetail;
-
-Var 
-   i,j :  Integer;
-   hSaveX, hSaveY:  Integer ;
-Begin
-   hSaveX := ghX ;
-   hSaveY := ghY ;
-   For j:=1 To MaxRow-ghColNameLine Do
-      Begin
-         For i:=1 To ghColCount Do
-            Begin
-               ghX := ghFirstX+i-1 ;
-               ghY := ghFirstY+j-1 ;
-
-               If (Sheet[ghX,ghY].tpMain <> Nil) Or (Sheet[ghX,ghY].cCellType <> 0) Then
-                  WriteData(Sheet[ghX,ghY],
-                            gcCellPos[i],
-                            j+ghColNameLine,
-                            gcCellWidth[ghX],
-                            Sheet[ghX,ghY].cCellColor) ;
-            End ;
-      End ;
-   ghX := hSaveX ;
-   ghY := hSaveY ;
-
+   ghX := ghFirstX ;
+   ghFirstY := ghY ;
+   ghScrY := 1 ;
+   SetScreen;
+   ghX := ghX + ghScrX-1 ;
 End;
 
 { ---------------------------------------------- }
-{  Set Screen                                    }
+{  Page Up                                       }
 { ---------------------------------------------- }
-Procedure SetScreen;
+Procedure PageUp;
 Begin
-   //SetLowVideo ;
+   ghY := ghFirstY - (MaxRow-ghColNameLine) ;
+   //@@@
+   If ghY < 1 + ghFixY Then
+      ghY := 1 + ghFixY ;
 
-   If gcForm = c_NORMAL Then
-      Begin
-         ghColNameLine := h_COLNAMELINE;
-         ghLeftSide := h_LEFTSIDE;
-      End
+   ghX := ghFirstX ;
+   ghFirstY := ghY ;
+   ghScrY := 1 ;
+   SetScreen;
+   ghX := ghX + ghScrX-1 ;
+End;
+
+{ ---------------------------------------------- }
+{  Page Right                                    }
+{ ---------------------------------------------- }
+Procedure PageRight;
+Begin
+   ghFirstX := ghFirstX + ghColCount ;
+   If ghFirstX > h_MAXCOL Then
+      ghFirstX := h_MAXCOL ;
+   SetScreen;
+
+   If ghScrx > ghColCount Then
+      ghScrX := 1 ;
+   ghX := ghFirstX + ghScrX-1
+End;
+
+{ ---------------------------------------------- }
+{  Page Left                                     }
+{ ---------------------------------------------- }
+Procedure PageLeft;
+Begin
+   //@@@@
+   If ghFirstX = 1 + ghFixX Then
+      ghScrX := 1
    Else
-      Begin
-         ghColNameLine := h_COLNAMELINE-1;
-         ghLeftSide := 1;
-      End ;
+      ghFirstX := GetPreviousFirstX(ghFirstX);
 
-   gcCellPos[1] := ghLeftSide;
-   //WinClrScr( 1, 1, MaxCol, MaxRow );
-   SetAttr(Black) ;
-   ClrScr ;
-   GetColCount ;
-
-   If gcForm = c_NORMAL Then
-      Begin
-         SetXAxis ;
-         SetYAxis ;
-      End ;
-
-   SetScreenDetail ;
-
+   SetScreen;
+   ghX := ghFirstX + ghScrX-1
 End;
-
 
 { ---------------------------------------------- }
 {  Write YAxis                                   }
@@ -807,36 +712,6 @@ Begin
       End ;
 
 { ---------------------------------------------- }
-{  Scroll Right                                  }
-{ ---------------------------------------------- }
-      Procedure ScrollRight;
-      Begin
-         If ghFirstX > 1 Then
-            Begin
-               ghFirstX := ghFirstX - 1 ;
-               SetScreen ;
-            End ;
-      End ;
-
-{ ---------------------------------------------- }
-{  Scroll Left                                   }
-{ ---------------------------------------------- }
-      Procedure ScrollLeft;
-      Begin
-         If ghFirstX < h_MaxCol Then
-            Begin
-               ghFirstX := ghFirstX + 1 ;
-               SetScreen ;
-
-               If ghX > ghFirstX+ghColCount-1 Then
-                  Begin
-                     ghX := ghFirstX+ghColCount-1 ;
-                     ghScrX := ghColCount ;
-                  End ;
-            End ;
-      End ;
-
-{ ---------------------------------------------- }
 {  Cursor Up                                     }
 { ---------------------------------------------- }
       Procedure CursorUP;
@@ -844,7 +719,7 @@ Begin
          SetCurrentDataOnCell(Sheet[ghX,ghY], Sheet[ghX,ghY].cCellColor);
          SetCurrentDataOnRow;
 
-         If ghY > 1 Then
+         If ghY > 1 + ghFixY Then
             Begin
                ghY := ghY - 1 ;
                If ghScrY > 1 Then
@@ -873,6 +748,46 @@ Begin
       End;
 
 { ---------------------------------------------- }
+{  Scroll Right                                  }
+{ ---------------------------------------------- }
+      Procedure ScrollRight;
+      Begin
+         //@@@@
+         //If ghFirstX > 1 Then
+         If ghFirstX > 1 + ghFixX Then
+            Begin
+               ghFirstX := ghFirstX - 1 ;
+               SetScreen ;
+            End ;
+      End ;
+
+{ ---------------------------------------------- }
+{  Scroll Left                                   }
+{ ---------------------------------------------- }
+      Procedure ScrollLeft;
+      Begin
+         If ghFirstX < h_MaxCol Then
+            Begin
+               ghFirstX := ghFirstX + 1 ;
+               SetScreen ;
+
+{
+						If ghX > ghFirstX+ghColCount-1 Then
+						   Begin
+									ghX := ghFirstX+ghColCount-1 ;
+									ghScrX := ghColCount ;
+							 End ;
+}
+               If ghX > ghFirstX+ghColCount-1+ghFixX Then
+                  Begin
+                     ghX := ghFirstX+ghColCount-1+ghFixX ;
+                     //ghScrX := ghColCount+ghFixX ;
+                     ghScrX := ghColCount ;
+                  End ;
+            End ;
+      End ;
+
+{ ---------------------------------------------- }
 {  Cursor Right                                  }
 { ---------------------------------------------- }
       Procedure CursorRight;
@@ -897,10 +812,12 @@ Begin
       Begin
          SetCurrentDataOnCell(Sheet[ghX,ghY], Sheet[ghX,ghY].cCellColor);
          SetCurrentDataOnRow;
-
-         If ghX > 1 Then
+         //@@@
+         //If ghX > 1 Then
+         If ghX > 1 + ghFixX Then
             Begin
                ghX := ghX - 1;
+
                If ghScrX > 1 Then
                   ghScrX := ghScrX - 1
                Else
@@ -908,66 +825,217 @@ Begin
             End ;
       End;
 
-{ ---------------------------------------------- }
-{  Page Down                                     }
-{ ---------------------------------------------- }
-      Procedure PageDown;
-      Begin
-         ghY := ghFirstY + MaxRow-ghColNameLine ;
-         If ghY > h_MAXROW Then
-            ghY := h_MAXROW ;
 
-         ghX := ghFirstX ;
-         ghFirstY := ghY ;
-         ghScrY := 1 ;
-         SetScreen;
-         ghX := ghX + ghScrX-1 ;
+{ ---------------------------------------------- }
+{  Set X-Axis                                    }
+{ ---------------------------------------------- }
+      Procedure SetXAxis(firstX, colCount, colNameLine : Integer) ;
+
+      Var 
+         i, j     :  Integer ;
+         w     :  integer ;
+         currentAttr :  Byte ;
+         xstr     :  String ;
+      Begin
+         currentAttr := GetAttr ;
+         //GotoXY(gcCellPos[firstX], colNameLine);
+         //WinClrScr( gcCellPos[firstX], colNameLine, MaxCol, colNameLine );
+         TextColor(Black) ;
+         TextBackground(Cyan) ;
+
+         //For i:=1 To ghColCount Do
+         For i:=1 To colCount Do
+            Begin
+               w := gcCellWidth[firstX+i-1] ;
+               xstr := GetXString(firstX+i-1) ;   {CVEVAL}
+
+               For j:=1 To w Do
+                  Begin
+                     GotoXY(gcCellPos[i]+j-1,colNameLine) ;
+                     If j = ((gcCellWidth[firstX+i-1]-length(xstr)) Div 2)+((gcCellWidth[firstX+i-1]
+                        - length(xstr)) Mod 2) Then
+                        Begin
+                           write(xstr) ;
+                           j := j+length(xstr)-1 ;
+                        End
+                     Else
+                        write(' ') ;
+                  End ;
+            End;
+         SetAttr(currentAttr) ;
+      End ;
+
+{ ---------------------------------------------- }
+{  Set Y-Axis                                    }
+{ ---------------------------------------------- }
+      Procedure SetYAxis(firstY, rowCount, colNameLine : Integer) ;
+
+      Var 
+         i :  Integer ;
+         currentAttr :  Byte ;
+      Begin
+         currentAttr := GetAttr ;
+         //WinClrScr( 1, colNameLine+1, ghLeftSide-1, MaxRow );
+         //gotoxy(1,colNameLine) ;
+         TextColor(AXIS_TEXTCOLOR) ;
+         TextBackground(AXIS_TEXTBACKGROUND) ;
+
+         For i:=1 To ghLeftSide-1 Do
+            Begin
+               gotoxy(i, h_COLNAMELINE) ;
+               write(' ') ;
+            End ;
+
+         For i:=1 To rowCount  Do
+            Begin
+               gotoxy(1,i+colNameLine) ;
+               write(firstY+i-1:ghLeftSide-1) ;
+            End ;
+         SetAttr(currentAttr) ;
+      End ;
+
+{ ---------------------------------------------- }
+{  Set Screen                                    }
+{ ---------------------------------------------- }
+      Procedure SetScreenDetail2(firstX, endX, firstY, endY, colNameLine :integer) ;
+
+      Var 
+         i,j :  Integer;
+         hSaveX, hSaveY:  Integer ;
+      Begin
+         hSaveX := ghX ;
+         hSaveY := ghY ;
+         For j:=1 To endY Do
+            Begin
+               For i:=1 To endX Do
+                  Begin
+                     ghX := firstX+i-1 ;
+                     ghY := firstY+j-1 ;
+
+                     If (Sheet[ghX,ghY].tpMain <> Nil) Or (Sheet[ghX,ghY].cCellType <> 0) Then
+                        WriteData(Sheet[ghX,ghY],
+                                  gcCellPos[i],
+                                  j+colNameLine,
+                                  gcCellWidth[ghX],
+                                  Sheet[ghX,ghY].cCellColor) ;
+                  End ;
+            End ;
+         ghX := hSaveX ;
+         ghY := hSaveY ;
+
+      End;
+
+      Procedure SetScreenDetail;
+      Begin
+         SetScreenDetail2(ghFirstX, ghColCount, ghFirstY, MaxRow-ghColNameLine, ghColNameLine) ;
       End;
 
 { ---------------------------------------------- }
-{  Page Up                                       }
+{  Calcurate Column Count                        }
 { ---------------------------------------------- }
-      Procedure PageUp;
+      Procedure GetColCount(firstX :Integer) ;
+
+      Var 
+         i, hLen:  Integer ;
+
       Begin
-         ghY := ghFirstY - (MaxRow-ghColNameLine) ;
-         If ghY < 1 Then
-            ghY := 1 ;
+         ghColCount := 0 ;
+         hLen := gcCellPos[1] ;
 
-         ghX := ghFirstX ;
-         ghFirstY := ghY ;
-         ghScrY := 1 ;
-         SetScreen;
-         ghX := ghX + ghScrX-1 ;
-      End;
+         i := 1 ;
+
+         While (hLen < MaxCol) And (i<= h_MAXCOL-firstX+1) Do
+            Begin
+               hLen := hLen + gcCellWidth[i+firstX-1] ;
+               If hLen >= MaxCol Then
+                  exit ;
+               ghColCount := ghColCount + 1 ;
+               If ghColCount > h_MAXCOL - firstX+1 Then
+                  Begin
+                     ghColCount := h_MAXCOL - firstX+1 ;
+                     exit ;
+                  End ;
+               gcCellPos[i+1] := gcCellPos[i] + gcCellWidth[i+firstX-1] ;
+               i := i + 1 ;
+            End;
+
+      End ;
 
 { ---------------------------------------------- }
-{  Page Right                                    }
+{  Set Screen                                    }
 { ---------------------------------------------- }
-      Procedure PageRight;
+      Procedure SetScreen;
+
+      Var 
+         i:  Integer ;
+         colNameLine:  Integer ;
+
       Begin
-         ghFirstX := ghFirstX + ghColCount ;
-         If ghFirstX > h_MAXCOL Then
-            ghFirstX := h_MAXCOL ;
-         SetScreen;
-
-         If ghScrx > ghColCount Then
-            ghScrX := 1 ;
-         ghX := ghFirstX + ghScrX-1
-      End;
-
-{ ---------------------------------------------- }
-{  Page Left                                     }
-{ ---------------------------------------------- }
-      Procedure PageLeft;
-      Begin
-
-         If ghFirstX = 1 Then
-            ghScrX := 1
+         ClrScr ;
+         If gcForm = c_NORMAL Then
+            Begin
+               ghColNameLine := h_COLNAMELINE ;
+               ghLeftSide := h_LEFTSIDE;
+            End
          Else
-            ghFirstX := GetPreviousFirstX(ghFirstX);
+            Begin
+               ghColNameLine := h_COLNAMELINE - 1;
+               ghLeftSide := 1;
+            End ;
+         colNameLine := ghColNameLine ;
+         gcCellPos[1] := ghLeftSide;
+         GetColCount(1) ;
 
-         SetScreen;
-         ghX := ghFirstX + ghScrX-1
+         SetAttr(Black) ;
+
+         If (ghFixX > 0) Then
+            Begin
+               If gcForm = c_NORMAL Then
+                  Begin
+                     SetXAxis(1, ghFixX, colNameLine) ;
+                  End ;
+
+               If ghFirstY = 1 + ghFixY Then
+                  Begin
+                     SetScreenDetail2(1, ghFixX, 1, MaxRow-ghColNameLine, colNameLine) ;
+                  End
+               Else
+                  Begin
+                     If ghFixY > 0 Then
+                        SetScreenDetail2(1, ghFixX, 1, ghFixY, colNameLine) ;
+                     SetScreenDetail2(1, ghFixX, ghFirstY, MaxRow-ghColNameLine, colNameLine +
+                                      ghFixY) ;
+                  End;
+
+               For i:=1 To ghFixX Do
+                  Begin
+                     gcCellPos[1] := gcCellPos[1]+gcCellWidth[i];
+                  End;
+
+            End ;
+
+         GetColCount(ghFirstX) ;
+         If (ghFixY > 0) Then
+            Begin
+               If gcForm = c_NORMAL Then
+                  Begin
+                     SetYAxis(1, ghFixY, colNameLine) ;
+                  End ;
+
+               SetScreenDetail2(ghFirstX, ghColCount, 1, ghFixY, ghColNameLine) ;
+               If ghColNameLine <= h_COLNAMELINE + ghFixY Then
+                  ghColNameLine := ghColNameLine + ghFixY ;
+
+            End;
+
+         If gcForm = c_NORMAL Then
+            Begin
+               SetXAxis(ghFirstX, ghColCount, colNameLine) ;
+               SetYAxis(ghFirstY, MaxRow-colNameLine-ghFixY, ghColNameLine) ;
+            End ;
+
+         SetScreenDetail2(ghFirstX, ghColCount, ghFirstY, MaxRow-ghColNameLine, ghColNameLine) ;
+
       End;
 
 { ---------------------------------------------- }
@@ -975,13 +1043,18 @@ Begin
 { ---------------------------------------------- }
       Procedure Screen_Initialize;
       Begin
-         ghX := 1;
-         ghY := 1;
          ghScrX := 1 ;
          Ghscry := 1 ;
-         ghFirstX := 1 ;
-         ghFirstY := 1 ;
 
+         //ghFixX := 2;
+         //ghFixY := 1;
+
+         ghFirstX := 1 + ghFixX;
+         ghFirstY := 1  + ghFixY;
+         ghX := 1 + ghFixX;
+         ghY := 1 + ghFixY;
          SetScreen ;
       End;
    End.
+   //	 GotoXy(21,9) ;
+   //writeln('S2:',s2,' hData:',hData,' hErrPos:',hErrPos) ;

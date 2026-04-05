@@ -40,6 +40,72 @@ Begin
    GetCellData := sData ;
 End ;
 
+Procedure JustifyCell(Var sData :String; hx, hLen:integer; cFlag: Byte) ;
+
+Const 
+   c_NUMERIC =  0 ;
+   c_STRING =  1 ;
+
+Var 
+   i:  Integer;
+Begin
+  { ------------------------------------------------ }
+  {  Centerize                                       }
+  { ------------------------------------------------ }
+   If (Copy(sData,1,Length(s_CELL_CENTER)) = s_CELL_CENTER) Then
+      Begin
+         ChangeFirstChar(sData) ;
+         Centerlize(sData, hLen + Length(s_CELL_CENTER)) ;
+      End
+  { ------------------------------------------------ }
+  {  Right                                           }
+  { ------------------------------------------------ }
+   Else If (Copy(sData,1,Length(s_CELL_RIGHT)) = s_CELL_RIGHT) Then
+
+           Begin
+              ChangeFirstChar(sData) ;
+              RightJustify(sData, hLen + Length(s_CELL_RIGHT)) ;
+           End
+
+  { ------------------------------------------------ }
+  {  Hex (0x)                                        }
+  { ------------------------------------------------ }
+   Else If (Copy(sData,1,Length(s_CELL_HEX)) = s_CELL_HEX) Then
+           Begin
+              RightJustify(sData, hLen) ;
+           End
+
+  { ------------------------------------------------ }
+  {  Left                                            }
+  { ------------------------------------------------ }
+   Else If (Copy(sData,1,Length(s_CELL_LEFT)) = s_CELL_LEFT) Then
+           Begin
+              ChangeFirstChar(sData) ;
+              LeftJustify(sData, hLen + Length(s_CELL_LEFT)) ;
+           End
+
+  { ------------------------------------------------ }
+  {  Pading                                          }
+  { ------------------------------------------------ }
+   Else If (Copy(sData,1,Length(s_CELL_FILLCHAR)) = s_CELL_FILLCHAR) Then
+           Begin
+              sData := '' ;
+              While gcCellWidth[hx]>CellLength(sData) Do
+                 sData := sData+Copy(sData,2,1) ;
+           End
+
+  { ------------------------------------------------ }
+  {  Default                                         }
+  { ------------------------------------------------ }
+   Else
+      Begin
+         If cFlag = c_STRING Then
+            LeftJustify(sData, hLen)
+         Else
+            RightJustify(sData, hLen) ;
+      End ;
+End ;
+
 { ---------------------------------------------- }
 {  Trans TextData  cFlag: c_TEXTFILE,c_CSVFILE   }
 { ---------------------------------------------- }
@@ -94,7 +160,7 @@ Begin
       Begin
          For i:=hTopCol To hEndCol Do
             saveCellWidth[i] := gcCellWidth[i] ;
-         AdjustAllWidth ;
+         //AdjustAllWidth ;
       End ;
 
    For j:=hTopRow To hEndRow Do
@@ -102,15 +168,17 @@ Begin
          For i:=hTopCol To hEndCol Do
             Begin
                If Sheet[i,j].tpMain <> Nil Then
-                  //                  sData := Sheet[i,j].tpMain^
-                  sData := GetCellData(i,j)
+                  Begin
+                     sData := GetCellData(i,j) ;
+                  End
                Else
                   sData := '' ;
 
                Trim(sData) ;      { CVEVAL }
                If cFlag = c_CSVFILE Then
                   Begin
-                     //Trim(sData) ;      { CVEVAL }
+                     ChangeFirstChar(sData) ;
+                     Trim(sData) ;      { CVEVAL }
                      If pos(',', sData) > 0 Then
                         sData := '"'+sData+'"' ;
 
@@ -124,17 +192,18 @@ Begin
                   End
                Else
                   Begin
-                     If length(sData) > gcCellwidth[i] Then
+                     If CellLength(sData) > gcCellwidth[i] Then
                         hDataLen := gcCellwidth[i]
                      Else
-                        hDataLen := gcCellWidth[i]-length(sData) ;
+                        hDataLen := gcCellWidth[i]-CellLength(sData) ;
                      If IsCellNumeric(Sheet[i,j]) Then
-                        RightJustify(sData, hDataLen)
+                        JustifyCell(sData, i, hDataLen, 0)
                      Else
-                        LeftJustify(sData, hDataLen);
+                        JustifyCell(sData, i, hDataLen, 1) ;
 
                      If i<>hEndCol Then
                         write(tpFile,sData)
+
                      Else
                         writeln(tpFile,sData) ;
                   End ;
@@ -154,12 +223,19 @@ End;
 
 Procedure TransText;
 Begin
-   TransTextData(1, 1, ghMaxX, ghMaxY, c_TEXTFILE);
+
+   If gcMode = c_NORMAL Then
+      TransTextData(1, 1, ghMaxX, ghMaxY, c_TEXTFILE)
+   Else
+      TransTextData(ghTopCol, ghTopRow, ghEndCol, ghEndRow, c_TEXTFILE);
 End;
 
 Procedure TransCSV;
 Begin
-   TransTextData(1, 1, ghMaxX, ghMaxY, c_CSVFILE);
+   If gcMode = c_NORMAL Then
+      TransTextData(1, 1, ghMaxX, ghMaxY, c_CSVFILE)
+   Else
+      TransTextData(ghTopCol, ghTopRow, ghEndCol, ghEndRow, c_CSVFILE);
 End;
 
 { ---------------------------------------------- }

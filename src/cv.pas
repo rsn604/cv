@@ -109,6 +109,9 @@ Begin
    gcForm := c_NORMAL ;
    gsFileName := '' ;
 
+   ghFixX := 0 ;
+   ghFixY := 0 ;
+
    ClearStack ;         { CVUNDO }
 
    //   Screen_Initialize; 
@@ -312,6 +315,8 @@ Begin
                            GotoCell(ghX, 1) ;
                      End ;
 
+         //CTRL_LT  :  GotoCell(ghX, 1) ;
+         //CTRL_GT  :  GotoCell(ghX, ghMaxY) ;
          CTRL_A   :  GotoCell(1, ghY) ;
          CTRL_E   :  GotoCell(ghMaxX, ghY) ;
 

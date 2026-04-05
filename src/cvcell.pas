@@ -425,8 +425,23 @@ End;
 Procedure ChangeCellJustify(hTopCol, hTopRow, hEndCol, hEndRow:integer; cFlag:Byte) ;
 
 Var 
-   i, j, hSeq:  Integer;
+   i, j, hSeq, hMenu:  Integer;
 Begin
+
+   ClearMenuLine ;
+   MenuList[1].Menu := 'C Center  ';
+   MenuList[1].Num  := 1;
+   MenuList[2].Menu := 'R Right   ';
+   MenuList[2].Num  := 2;
+   MenuList[3].Menu := 'L Left    ';
+   MenuList[3].Num  := 3;
+   MenuList[4].Menu := 'Q Quit   ';
+   MenuList[4].Num  := 0;
+
+   hMenu :=  SelectVertMenu(1, h_MENULINE, MenuList, 4) ;
+   If hMenu = 0 Then
+      exit ;
+
    hSeq := 0 ;
    For j:=hTopRow To hEndRow Do
       Begin
@@ -438,13 +453,13 @@ Begin
                If Sheet[i,j].tpMain <> Nil Then
                   Begin
                      ChangeFirstChar(Sheet[i,j].tpMain^) ;
-                     If  (cFlag = c_CELL_CENTER) Then
+                     If  hMenu = 1 Then
                         Sheet[i,j].tpMain^ := s_CELL_CENTER +Sheet[i,j].tpMain^;
 
-                     If  (cFlag = c_CELL_RIGHT) Then
+                     If  hMenu = 2 Then
                         Sheet[i,j].tpMain^ := s_CELL_RIGHT+Sheet[i,j].tpMain^;
 
-                     If  (cFlag = c_CELL_LEFT) Then
+                     If  hMenu = 3 Then
                         Sheet[i,j].tpMain^ := s_CELL_LEFT+Sheet[i,j].tpMain^;
                   End ;
             End ;
@@ -530,6 +545,58 @@ Begin
 End ;
 
 { ---------------------------------------------- }
+{  Fixed  Cell                                   }
+{ ---------------------------------------------- }
+Procedure FixedCell(hX, hY: Integer);
+
+Var 
+   hMenu:  Integer ;
+
+Begin
+   ClearMenuLine ;
+   MenuList[1].Menu := 'C Col    ';
+   MenuList[1].Num  := 1;
+   MenuList[2].Menu := 'R Row    ';
+   MenuList[2].Num  := 2;
+   MenuList[3].Menu := 'B Both   ';
+   MenuList[3].Num  := 3;
+   MenuList[3].Menu := 'B Both   ';
+   MenuList[3].Num  := 3;
+   MenuList[4].Menu := 'C Cancel ';
+   MenuList[4].Num  := 4;
+   MenuList[5].Menu := 'Q Quit   ';
+   MenuList[5].Num  := 0;
+
+   hMenu :=  SelectVertMenu(1, h_MENULINE, MenuList, 5) ;
+   If hMenu = 0 Then
+      exit ;
+
+   If hMenu = 1 Then
+      Begin
+         ghFixX := hX ;
+         ghFixY := 0 ;
+      End ;
+   If hMenu = 2 Then
+      Begin
+         ghFixX := 0 ;
+         ghFixY := hY ;
+      End ;
+   If hMenu = 3 Then
+      Begin
+         ghFixX := hX ;
+         ghFixY := hY ;
+      End ;
+
+   If hMenu = 4 Then
+      Begin
+         ghFixX := 0 ;
+         ghFixY := 0 ;
+      End ;
+
+   Screen_Initialize ;        { CVSCRN }
+End;
+
+{ ---------------------------------------------- }
 {  Cell Menu                                     }
 { ---------------------------------------------- }
 Procedure CellMenu ;
@@ -546,35 +613,36 @@ Begin
    MenuList[1].Num  := 1;
    MenuList[2].Menu := 'D 小数点 ';
    MenuList[2].Num  := 2;
-   MenuList[3].Menu := 'C 中揃え ';
+   MenuList[3].Menu := 'J 表示   ';
    MenuList[3].Num  := 3;
-   MenuList[4].Menu := 'R 右揃え ';
+   MenuList[4].Menu := 'O 色     ';
    MenuList[4].Num  := 4;
-   MenuList[5].Menu := 'L 左揃え ';
+   MenuList[5].Menu := 'F 固定   ';
    MenuList[5].Num  := 5;
-   MenuList[6].Menu := 'O 色     ';
-   MenuList[6].Num  := 5;
-   MenuList[7].Menu := 'Q 終了   ';
-   MenuList[7].Num  := 0;
+   MenuList[6].Menu := 'Q 終了   ';
+   MenuList[6].Num  := 0;
 
 {$ELSE NOJPN}
    MenuList[1].Menu := 'W Width   ';
    MenuList[1].Num  := 1;
    MenuList[2].Menu := 'D Decimal ';
    MenuList[2].Num  := 2;
-   MenuList[3].Menu := 'C Center  ';
+   MenuList[3].Menu := 'J Justfy  ';
    MenuList[3].Num  := 3;
-   MenuList[4].Menu := 'R Right   ';
+   MenuList[4].Menu := 'C Color   ';
    MenuList[4].Num  := 4;
-   MenuList[5].Menu := 'L Left    ';
+   MenuList[5].Menu := 'F Fix     ';
    MenuList[5].Num  := 5;
-   MenuList[6].Menu := 'O Color   ';
-   MenuList[6].Num  := 6;
-   MenuList[7].Menu := 'Q Quit    ';
-   MenuList[7].Num  := 0;
+   MenuList[6].Menu := 'Q Quit    ';
+   MenuList[6].Num  := 0;
 {$ENDIF}
-   hMenu :=  SelectVertMenu(1, h_MENULINE, MenuList, 7);
+
+   hMenu :=  SelectVertMenu(1, h_MENULINE, MenuList, 6);
    CursorOn ;                  { CVCRT  }
+
+   If hMenu = 0 Then
+      exit ;
+
    If hMenu = 1 Then
       ChangeWidth(ghTopCol, ghX) ;
 
@@ -585,12 +653,11 @@ Begin
       ChangeCellJustify(ghTopCol, ghTopRow, ghEndCol, ghEndRow, c_CELL_CENTER) ;
 
    If hMenu = 4 Then
-      ChangeCellJustify(ghTopCol, ghTopRow, ghEndCol, ghEndRow, c_CELL_RIGHT) ;
+      ChangeCellColor(ghTopCol, ghTopRow, ghEndCol, ghEndRow) ;
 
    If hMenu = 5 Then
-      ChangeCellJustify(ghTopCol, ghTopRow, ghEndCol, ghEndRow, c_CELL_LEFT) ;
-   If hMenu = 6 Then
-      ChangeCellColor(ghTopCol, ghTopRow, ghEndCol, ghEndRow) ;
+      FixedCell(ghX, ghY) ;
+
    CursorOff ;                 { CVCRT  }
 End ;
 End .
