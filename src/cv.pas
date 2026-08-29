@@ -2,7 +2,7 @@
 
 Program cv ;
 
-Uses cvdef, cvcrt, cvscrn, cvinpt, cvdata, cvfile, cvtrans, cvcell, cvnewcl, cvsort, cvundo, cvhelp;
+Uses cvdef, cvcrt, cvscrn, cvinpt, cveval, cvdata, cvfile, cvtrans, cvcell, cvnewcl, cvsort, cvundo, cvhelp;
 
 { ---------------------------------------------- }
 {  Get Menu                                      }
@@ -122,20 +122,35 @@ End;
 (***********************************)
 
 Var 
-   sData     :  String ;
-   cEdit     :  Byte ;
-   cAscii, cCode :  Char;
-   //sFileName		 :  String ;
+   sData				 : String ;
+   cEdit				 : Byte ;
+   cAscii, cCode : Char;
+	 sFileName		 : String ;
+
 Begin
    Initialize;
    If Paramcount >= 1 Then
       Begin
-         gsFileName := ParamStr(1) ;
-         If (LoadTableMain(gsFileName, False) = False) Then
-            Begin
-               ClrScr ;
-               exit ;
-            End ;
+         sFileName := ParamStr(1) ;
+				 
+				 if UpcaseString(copy(sFileName, length(sFileName)-3, 4)) = '.CSV' then
+						begin
+							 If (GetCSVMain(sFileName, False) = False) Then
+						   Begin
+									ClrScr ;
+									exit ;
+							 End ;
+						end
+				 else
+						begin
+							 If (LoadTableMain(sFileName, False) = False) Then
+							    Begin
+										 ClrScr ;
+										 exit ;
+									End ;
+
+							 gsFileName := sFileName ;
+						end ;
       End ;
 
    Screen_Initialize;          { CVSCRN }

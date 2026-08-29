@@ -560,8 +560,6 @@ Begin
    MenuList[2].Num  := 2;
    MenuList[3].Menu := 'B Both   ';
    MenuList[3].Num  := 3;
-   MenuList[3].Menu := 'B Both   ';
-   MenuList[3].Num  := 3;
    MenuList[4].Menu := 'C Cancel ';
    MenuList[4].Num  := 4;
    MenuList[5].Menu := 'Q Quit   ';
@@ -597,6 +595,56 @@ Begin
 End;
 
 { ---------------------------------------------- }
+{  Attribute of Cell                             }
+{ ---------------------------------------------- }
+Procedure SetAttrCell(hTopCol, hTopRow, hEndCol, hEndRow : Integer; attr: Integer);
+
+Var 
+   i, j, hSeq:  Integer;
+
+Begin
+   hSeq := 0 ;
+   For i:=hTopCol To hEndCol Do
+      For j:=hTopRow To hEndRow Do
+         If Sheet[i,j].tpMain<>Nil Then
+            Begin
+               UndoLog(hSeq, i, j) ;   { CVUNDO }
+               hSeq := hSeq + 1 ;
+							 if attr = h_CELL_NUMERIC then
+									SetCellNumeric(Sheet[i,j])
+							 else
+									SetCellNotNumeric(Sheet[i,j])
+             End;
+   SetScreen;     { CVSCRN }
+End;
+
+Procedure AttrCell(hTopCol, hTopRow, hEndCol, hEndRow:integer) ;
+
+Var 
+   hMenu:  Integer ;
+
+Begin
+   ClearMenuLine ;
+   MenuList[1].Menu := 'S String  ';
+   MenuList[1].Num  := 1;
+   MenuList[2].Menu := 'N Numeric ';
+   MenuList[2].Num  := 2;
+   MenuList[3].Menu := 'Q Quit   ';
+   MenuList[3].Num  := 0;
+
+   hMenu :=  SelectVertMenu(1, h_MENULINE, MenuList, 3) ;
+   If hMenu = 0 Then
+      exit ;
+
+   If hMenu = 1 Then
+			SetAttrCell(hTopCol, hTopRow, hEndCol, hEndRow, $00) ;
+
+   If hMenu = 2 Then
+			SetAttrCell(hTopCol, hTopRow, hEndCol, hEndRow, h_CELL_NUMERIC) ;
+
+End;
+
+{ ---------------------------------------------- }
 {  Cell Menu                                     }
 { ---------------------------------------------- }
 Procedure CellMenu ;
@@ -619,8 +667,10 @@ Begin
    MenuList[4].Num  := 4;
    MenuList[5].Menu := 'F 固定   ';
    MenuList[5].Num  := 5;
-   MenuList[6].Menu := 'Q 終了   ';
-   MenuList[6].Num  := 0;
+   MenuList[6].Menu := 'A 属性   ';
+   MenuList[6].Num  := 5;
+   MenuList[7].Menu := 'Q 終了   ';
+   MenuList[7].Num  := 0;
 
 {$ELSE NOJPN}
    MenuList[1].Menu := 'W Width   ';
@@ -633,11 +683,13 @@ Begin
    MenuList[4].Num  := 4;
    MenuList[5].Menu := 'F Fix     ';
    MenuList[5].Num  := 5;
-   MenuList[6].Menu := 'Q Quit    ';
-   MenuList[6].Num  := 0;
+   MenuList[6].Menu := 'A Attr    ';
+   MenuList[6].Num  := 6;
+   MenuList[7].Menu := 'Q Quit    ';
+   MenuList[7].Num  := 0;
 {$ENDIF}
 
-   hMenu :=  SelectVertMenu(1, h_MENULINE, MenuList, 6);
+   hMenu :=  SelectVertMenu(1, h_MENULINE, MenuList, 7);
    CursorOn ;                  { CVCRT  }
 
    If hMenu = 0 Then
@@ -657,6 +709,9 @@ Begin
 
    If hMenu = 5 Then
       FixedCell(ghX, ghY) ;
+
+   If hMenu = 6 Then
+      AttrCell(ghTopCol, ghTopRow, ghEndCol, ghEndRow) ;
 
    CursorOff ;                 { CVCRT  }
 End ;

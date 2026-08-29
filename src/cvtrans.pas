@@ -6,6 +6,7 @@ Interface
 
 Uses cvdef, cvcrt, cvcell, cvscrn, cvdata, cveval, cvfile, cvundo ;
 Procedure TransMenu ;
+Function GetCSVMain(sFileName:String; bClear:Boolean): Boolean;
 
 { ---------------------------------------------- }
 
@@ -242,7 +243,7 @@ End;
 {  Get CSV Main                                  }
 { ---------------------------------------------- }
 {$B-}
-Procedure GetCSVMain(sFileName:String; bClear:Boolean);
+Function GetCSVMain(sFileName:String; bClear:Boolean): Boolean;
 
 Const 
    c_INIT =  0 ;
@@ -268,8 +269,9 @@ Begin
  {$I+}
    If IOresult <> 0 Then     { File not found }
       Begin
-         PutMsg('File not found.');
-         exit ;
+         PutMsg('CSV File not found.');
+				 GetCSVMain := False ;
+				 exit ;
       End ;
 
   { ******************************** }
@@ -332,7 +334,7 @@ Begin
                            Read (tpFile,Ch);
                         End ;
                      //GotoXy(20,22) ;
-                     // Write('Ch;', Ch, ':sData:', sData, ':length:', length(sData)) ;
+                      //Write('Ch;', Ch, ':sData:', sData, ':length:', length(sData)) ;
                   End ;
 
                ghX := i ;
@@ -347,6 +349,8 @@ Begin
             End ;
       End;
    Close(tpFile);
+	 GetCSVMain := True ;
+
 End ;
 
 { ---------------------------------------------- }
